@@ -1,22 +1,31 @@
 package main
 
 import (
-	// "meal_record_practice/app/controller"
-	// "meal_record_practice/app/middleware"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "go_meal_record/app/db" //module名/ディレクトリ initだけの場合は_使用
+	"net/http"
 )
 
 func main() {
 	engine := gin.Default()
-	// bookEngine := engine.Group("/book")
-	// {
-	// 	//ログイン必要なし
-	// 	v1 := bookEngine.Group("/v1")
-	// 	{
-	// 		v1.GET("/list", controller.BookList)
-	// 		v1.POST("/register", controller.Register)
-	// 		v1.POST("/login", controller.Login)
-	// 	}
+	//ログイン必要なし
+	v1 := engine.Group("/v1")
+	{
+		account := v1.Group("/accounts")
+		fmt.Println(account)
+
+		{
+			account.GET("/", func(c *gin.Context) {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "hello world",
+				})
+			})
+			// account.GET("/list", controller.BookList)
+			// account.POST("/register", controller.AccountRegister)
+			// account.POST("/login", controller.Login)
+		}
+	}
 	// 	//ログイン必要
 	// 	v2 := bookEngine.Group("/v2")
 	// 	v2.Use(middleware.JwtAuthMiddleware())
@@ -27,7 +36,6 @@ func main() {
 	// 		v2.PUT("/update", controller.BookUpdate)
 	// 		v2.DELETE("/delete", controller.BookDelete)
 	// 	}
-	// }
 	engine.Static("/static", "./static")
 	engine.Run(":3000")
 }
