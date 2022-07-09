@@ -58,9 +58,10 @@ func AccountRegister(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "success!",
-		"user":    user,
-		"token":   token,
+		"message":       "success!",
+		"user":          user,
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
 	})
 }
 
@@ -95,7 +96,32 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
+	})
+}
+
+func GetTokenByRefreshToken(c *gin.Context) {
+	user_id, err := token.ExtractTokenID(c)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
+	token, err := token.GenerateToken(user_id)
+
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
+	})
+
 }
 
 func GetCurrentUser(c *gin.Context) (model.User, error) {

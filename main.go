@@ -32,6 +32,7 @@ func main() {
 				"message": "hello world",
 			})
 		})
+		v2.POST("/get_token_by_refresh_token", controller.GetTokenByRefreshToken)
 		v2.GET("/user", controller.ShowUser)
 		// 		v2.DELETE("/user_delete", controller.UserDelete)
 		// 		v2.POST("/add", controller.BookAdd)
