@@ -1,16 +1,18 @@
 package db
 
 import (
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"go_meal_record/app/model"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 var err error
 
 func init() {
@@ -22,12 +24,12 @@ func init() {
 	postgres_password := os.Getenv("POSTGRES_PASSWORD")
 	postgres_db := os.Getenv("POSTGRES_DB")
 	dsn := fmt.Sprintf("host=postgres user=%s password=%s dbname=%s port=5432 sslmode=disable", postgres_user, postgres_password, postgres_db)
-	db, err = gorm.Open(
+	DB, err = gorm.Open(
 		postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	// DbEngine.AutoMigrate(&model.User{})
+	DB.AutoMigrate(&model.User{})
 	// DbEngine.AutoMigrate(&model.Book{})
 }

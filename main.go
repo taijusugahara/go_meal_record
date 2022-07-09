@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go_meal_record/app/controller"
 	_ "go_meal_record/app/db" //module名/ディレクトリ initだけの場合は_使用
 	"net/http"
 )
@@ -12,7 +13,7 @@ func main() {
 	//ログイン必要なし
 	v1 := engine.Group("/v1")
 	{
-		account := v1.Group("/accounts")
+		account := v1.Group("/account")
 		fmt.Println(account)
 
 		{
@@ -22,7 +23,7 @@ func main() {
 				})
 			})
 			// account.GET("/list", controller.BookList)
-			// account.POST("/register", controller.AccountRegister)
+			account.POST("/register", controller.AccountRegister)
 			// account.POST("/login", controller.Login)
 		}
 	}
