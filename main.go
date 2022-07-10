@@ -1,16 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
 	"go_meal_record/app/controller"
 	_ "go_meal_record/app/db" //module名/ディレクトリ initだけの場合は_使用
 	"go_meal_record/app/middleware"
+
+	"fmt"
 	"net/http"
 )
 
 func main() {
 	engine := gin.Default()
+	cors_config := cors.DefaultConfig()
+	cors_config.AllowOrigins = []string{"http://localhost:3001"}
+	engine.Use(cors.New(cors_config))
 	//ログイン必要なし
 	v1 := engine.Group("/v1")
 	{

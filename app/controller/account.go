@@ -17,16 +17,20 @@ import (
 
 //log.Fatallnだとエラー起きるとサーバーが落ちる
 
+/////c.PostForm()はpostmanのformdataの時にのみ動いた。
+//postmanのrawやreactからはjsonで渡ってくるのでBindJSONを使う感じ。
+//BindJSONを使っておこう。apiの挙動確認もrawでやったほうが良さそう
+
 func AccountRegister(c *gin.Context) {
 	var err error
 	validate := validator.New()
 	user := model.User{}
-	name := c.PostForm("name")
-	email := c.PostForm("email")
-	password := c.PostForm("password")
-	user.Name = name
-	user.Email = email
-	user.Password = password
+	err = c.BindJSON(&user)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
 
 	err = validate.Struct(user)
 	if err != nil {
@@ -68,10 +72,13 @@ func AccountRegister(c *gin.Context) {
 func Login(c *gin.Context) {
 	var err error
 	user := model.User{}
-	email := c.PostForm("email")
-	password := c.PostForm("password")
-	user.Email = email
-	user.Password = password
+	//Nameないのに&userでも大丈夫な理由はvalidateしてないから。validateする場合はnameなしのstruct作ること
+	err = c.BindJSON(&user)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
 
 	my_user := model.User{}
 	err = db.DB.Model(model.User{}).Where("email = ?", user.Email).First(&my_user).Error
