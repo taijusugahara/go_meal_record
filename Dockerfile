@@ -2,8 +2,8 @@
 FROM golang:1.17.6-alpine
 
 # ホストのファイルをコンテナの作業ディレクトリにコピー
-COPY . /go/src
+COPY . /go/src/app
 
 # ワーキングディレクトリの設定
-#上で設定したpathから考える
+#copyとwordirはこの形が一番かな？appのところをgo_meal_recordとかにしたらおかしくなる
 WORKDIR /go/src/app

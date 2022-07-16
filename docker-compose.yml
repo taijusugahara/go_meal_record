@@ -20,4 +20,4 @@ services:
       - "3000:3000"
     tty: true
     volumes:
-      - .:/go/src
+      - .:/go/src/app
