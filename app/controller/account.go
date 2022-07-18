@@ -2,12 +2,12 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 
 	"go_meal_record/app/db"
 	"go_meal_record/app/model"
 	"go_meal_record/app/utils/token"
+	"go_meal_record/app/utils/validate"
 
 	"log"
 	"net/http"
@@ -21,7 +21,7 @@ import (
 
 func AccountRegister(c *gin.Context) {
 	var err error
-	validate := validator.New()
+	validate := validate.Validate()
 	user := model.User{}
 	err = c.BindJSON(&user)
 	if err != nil {
@@ -33,7 +33,7 @@ func AccountRegister(c *gin.Context) {
 	err = validate.Struct(user)
 	if err != nil {
 		log.Println(err)
-		c.String(http.StatusInternalServerError, "Server Error")
+		c.String(http.StatusInternalServerError, "Validation Error")
 		return
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)

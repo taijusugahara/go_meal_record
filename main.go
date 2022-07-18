@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
+	// limits "github.com/gin-contrib/size"
 	"github.com/gin-gonic/gin"
 
 	"go_meal_record/app/controller"
@@ -15,6 +16,7 @@ import (
 
 func main() {
 	engine := gin.Default()
+	// engine.MaxMultipartMemory = 1000 << 20
 	cors_config := cors.DefaultConfig()
 	cors_config.AllowOrigins = []string{"http://localhost:3001"}
 	cors_config.AllowHeaders = []string{"Access-Control-Allow-Credentials",
@@ -25,6 +27,7 @@ func main() {
 		"Authorization"}
 
 	engine.Use(cors.New(cors_config))
+	// engine.Use(limits.RequestSizeLimiter(100000000))
 	//ログイン必要なし
 	v1 := engine.Group("/v1")
 	{
@@ -55,7 +58,10 @@ func main() {
 		meal.POST("/create/", controller.MealCreate)
 		meal.GET("/menu_index/", controller.MenuIndex)
 		meal.POST("/menu_create/:meal_id/", controller.MenuCreate)
-		meal.POST("/image_create/:meal_id/", controller.MealImageCreate)
+		//!!!!!!!下、最後に/(スラッシュ)つけてはいけない。/つけた場合は1MB以上のファイルを送信できなかった(POSTMAN)。Reactは試してない。
+		meal.POST("/image_create/:meal_id", controller.MealImageCreate)
+		meal.DELETE("/delete/menu/:id/", controller.MenuDelete)
+		meal.DELETE("/delete/meal_image/:id/", controller.MealImageDelete)
 		// 		v2.DELETE("/user_delete", controller.UserDelete)
 		// 		v2.POST("/add", controller.BookAdd)
 		// 		v2.PUT("/update", controller.BookUpdate)
