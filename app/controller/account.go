@@ -9,10 +9,8 @@ import (
 	"go_meal_record/app/model"
 	"go_meal_record/app/utils/token"
 
-	"net/http"
-	// "strconv"
-
 	"log"
+	"net/http"
 )
 
 //log.Fatallnだとエラー起きるとサーバーが落ちる
@@ -151,10 +149,5 @@ func ShowUser(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Not correct user")
 		return
 	}
-
-	log.Println(user)
-	log.Println(user.Name)
-	log.Println(user.Email)
-
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }

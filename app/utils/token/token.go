@@ -59,6 +59,7 @@ func TokenValid(c *gin.Context) error {
 	secret_key := os.Getenv("JWT_SECRET_KEY")
 	claims := jwt.MapClaims{}
 	token_string := ExtractToken(c)
+	log.Println(token_string)
 	if token_string == "" {
 		log.Println("token is not exist")
 		c.String(http.StatusUnauthorized, "Unauthorized")
@@ -67,7 +68,7 @@ func TokenValid(c *gin.Context) error {
 		return []byte(secret_key), nil
 	})
 	if err != nil {
-		log.Println("nok")
+		log.Println("not ok")
 		return err
 	} else {
 		log.Println("ok")
@@ -77,6 +78,7 @@ func TokenValid(c *gin.Context) error {
 
 func ExtractToken(c *gin.Context) string {
 	bearerToken := c.Request.Header.Get("Authorization")
+	log.Println(bearerToken)
 	if len(strings.Split(bearerToken, " ")) == 2 {
 		return strings.Split(bearerToken, " ")[1]
 	}
