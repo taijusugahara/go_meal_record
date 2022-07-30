@@ -53,21 +53,18 @@ func main() {
 		v2.GET("/user_info", controller.ShowUser)
 
 		meal := v2.Group("/meal")
-		meal.GET("/index/day/", controller.MealIndexByDay)
-		meal.GET("/index/month/", controller.MealIndexByMonth)
+		meal.GET("/index/day/:date/", controller.MealIndexByDay)
+		meal.GET("/index/week/:date/", controller.MealIndexByWeek)
+		meal.GET("/index/month/:date/", controller.MealIndexByMonth)
 		meal.POST("/create/", controller.MealCreate)
-		meal.GET("/menu_index/", controller.MenuIndex)
-		meal.POST("/menu_create/:meal_id/", controller.MenuCreate)
-		//!!!!!!!下、最後に/(スラッシュ)つけてはいけない。/つけた場合は1MB以上のファイルを送信できなかった(POSTMAN)。Reactは試してない。
-		meal.POST("/image_create/:meal_id", controller.MealImageCreate)
+		// meal.GET("/menu_index/", controller.MenuIndex)
+		meal.POST("/menu_create/", controller.MenuCreate)
+		//!!!!!!!下、最後に/(スラッシュ)つけてはいけない。/つけた場合は1MB以上のファイルを送信できなかった(POSTMAN)。Reactは試してない。https://stackoverflow.com/questions/33771167/handle-file-uploading-with-go
+		meal.POST("/image_create", controller.MealImageCreate)
 		meal.DELETE("/delete/menu/:id/", controller.MenuDelete)
 		meal.DELETE("/delete/meal_image/:id/", controller.MealImageDelete)
-		// 		v2.DELETE("/user_delete", controller.UserDelete)
-		// 		v2.POST("/add", controller.BookAdd)
-		// 		v2.PUT("/update", controller.BookUpdate)
-		// 		v2.DELETE("/delete", controller.BookDelete)
 	}
-	engine.Static("/static", "./static")
+	engine.Static("/static", "./app/static")
 	time.Local = time.FixedZone("Asia/Tokyo", 9*60*60)
 	engine.Run(":3000")
 }
