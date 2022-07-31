@@ -28,7 +28,7 @@ func MealIndexByDay(c *gin.Context) {
 		"morning": model.NewMeal(), "lunch": model.NewMeal(), "dinner": model.NewMeal(), "other": model.NewMeal(),
 	} //注意 : mapは強制的にkey abc順になる、morningから開始したいがslice rangeで順番変えても無理だった。今回の場合はdinnerが先頭に来る。morningからにしたかったらjs側でsortするか
 
-	result := db.DB.Model(model.Meal{}).Where("date = ?", date_start).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
+	result := db.DB.Model(model.Meal{}).Where("date = ?", date_start).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
@@ -53,14 +53,31 @@ func MealIndexByWeek(c *gin.Context) {
 	weekday_int := int(weekday)
 	first_week_date := date_start.AddDate(0, 0, -weekday_int)
 	end_week_date := date_start.AddDate(0, 0, 6-weekday_int)
-	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_week_date, end_week_date).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
+	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_week_date, end_week_date).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
+
+	one_week_meal_map := map[string]map[string]interface{}{}
+	for i := 0; i < 7; i++ { //1週間分の日時をkeyにして初期値を入れる
+		weekday_date := first_week_date.AddDate(0, 0, i)
+		weekday_date_str := weekday_date.Format("2006-01-02T15:04:05Z")
+		one_day_meal_map := map[string]interface{}{
+			"morning": model.NewMeal(), "lunch": model.NewMeal(), "dinner": model.NewMeal(), "other": model.NewMeal(),
+		}
+		one_week_meal_map[weekday_date_str] = one_day_meal_map
+	}
+
+	for _, meal := range meals {
+		date := time.Time(meal.Date) //1回time.Time型にしてあげる。UTCだった。これをjstにすると+9時間されてしまうのでここではしない。
+		date_str := date.Format("2006-01-02T15:04:05Z")
+		meal_type := meal.MealType
+		one_week_meal_map[date_str][meal_type] = meal
+	}
 	c.JSONP(http.StatusOK, gin.H{
-		"data": meals,
+		"data": one_week_meal_map,
 	})
 }
 
@@ -68,17 +85,36 @@ func MealIndexByMonth(c *gin.Context) {
 	meals := []model.Meal{}
 	date_str := c.Param("date")
 	date, _ := time.ParseInLocation("2006-01-02T15:04:05Z", date_str, time.Local)
-	this_month := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
-	next_month := this_month.AddDate(0, 1, -1)
-	log.Println(next_month)
-	result := db.DB.Where("meals.date BETWEEN ? AND ?", this_month, next_month).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
+	first_month_date := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
+	end_month_date := first_month_date.AddDate(0, 1, -1)
+
+	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_month_date, end_month_date).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
+	one_month_meal_map := map[string]map[string]interface{}{}
+	this_month := first_month_date.Month()
+	for i := 0; ; i++ { //1ヶ月分の日時をkeyにして初期値を入れる
+		month_date := first_month_date.AddDate(0, 0, i)
+		if month_date.Month() != this_month {
+			break
+		}
+		month_str := month_date.Format("2006-01-02T15:04:05Z")
+		one_day_meal_map := map[string]interface{}{
+			"morning": model.NewMeal(), "lunch": model.NewMeal(), "dinner": model.NewMeal(), "other": model.NewMeal(),
+		}
+		one_month_meal_map[month_str] = one_day_meal_map
+	}
+	for _, meal := range meals {
+		date := time.Time(meal.Date) //1回time.Time型にしてあげる。UTCだった。これをjstにすると+9時間されてしまうのでここではしない。
+		date_str := date.Format("2006-01-02T15:04:05Z")
+		meal_type := meal.MealType
+		one_month_meal_map[date_str][meal_type] = meal
+	}
 	c.JSONP(http.StatusOK, gin.H{
-		"data": meals,
+		"data": one_month_meal_map,
 	})
 }
 
