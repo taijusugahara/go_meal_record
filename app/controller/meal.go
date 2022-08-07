@@ -53,6 +53,8 @@ func MealIndexByWeek(c *gin.Context) {
 	weekday_int := int(weekday)
 	first_week_date := date_start.AddDate(0, 0, -weekday_int)
 	end_week_date := date_start.AddDate(0, 0, 6-weekday_int)
+	formatted_first_week_date := first_week_date.Format("2006-01-02T15:04:05Z")
+	formatted_end_week_date := end_week_date.Format("2006-01-02T15:04:05Z")
 	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_week_date, end_week_date).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -77,7 +79,9 @@ func MealIndexByWeek(c *gin.Context) {
 		one_week_meal_map[date_str][meal_type] = meal
 	}
 	c.JSONP(http.StatusOK, gin.H{
-		"data": one_week_meal_map,
+		"data":            one_week_meal_map,
+		"first_week_date": formatted_first_week_date,
+		"end_week_date":   formatted_end_week_date,
 	})
 }
 
@@ -87,7 +91,7 @@ func MealIndexByMonth(c *gin.Context) {
 	date, _ := time.ParseInLocation("2006-01-02T15:04:05Z", date_str, time.Local)
 	first_month_date := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
 	end_month_date := first_month_date.AddDate(0, 1, -1)
-
+	formatted_first_month_date := first_month_date.Format("2006-01-02T15:04:05Z")
 	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_month_date, end_month_date).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -114,7 +118,8 @@ func MealIndexByMonth(c *gin.Context) {
 		one_month_meal_map[date_str][meal_type] = meal
 	}
 	c.JSONP(http.StatusOK, gin.H{
-		"data": one_month_meal_map,
+		"data":             one_month_meal_map,
+		"first_month_date": formatted_first_month_date,
 	})
 }
 
