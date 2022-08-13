@@ -1,9 +1,9 @@
 package model
 
 import (
-	"log"
-	"os"
-	"strconv"
+	// "log"
+	// "os"
+	// "strconv"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/datatypes"
@@ -34,7 +34,8 @@ type Menu struct {
 type MealImage struct {
 	gorm.Model `json:"-"`
 	ID         int    `gorm:"primary_key" json:"ID"`
-	File       string `validate:"required,max=255" json:"file"`
+	Filename   string `json:"-"`
+	Fileurl    string `json:"fileurl"`
 	Meal       Meal   `json:"-" validate:"required"`
 	MealID     int    `json:"meal_id" validate:"required"`
 }
@@ -55,29 +56,6 @@ func NewMeal() Meal {
 	m.MealImages = make([]MealImage, 0)
 	m.Menus = make([]Menu, 0)
 	return m
-}
-
-//filepathにIDを含めたいためafter_createする
-func (meal_image *MealImage) AfterCreate(db *gorm.DB) (err error) {
-	id := strconv.Itoa(meal_image.ID)
-	filename := meal_image.File
-	meal_image.File = "static/meal/" + id + "/" + filename
-	db.Save(&meal_image)
-	return
-}
-
-//file削除する
-func (meal_image *MealImage) BeforeDelete(db *gorm.DB) (err error) {
-	id := strconv.Itoa(meal_image.ID)
-	filepath := "app/static/meal/" + id
-	if _, err := os.Stat(filepath); err == nil { //file or directory 存在確認
-		remove_err := os.RemoveAll(filepath)
-		if remove_err != nil {
-			log.Println("file(directory) remove failed")
-			return remove_err
-		}
-	}
-	return
 }
 
 func CustomValidateMealType(fl validator.FieldLevel) bool {

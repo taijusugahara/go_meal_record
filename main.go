@@ -57,7 +57,7 @@ func main() {
 		meal.DELETE("/delete/menu/:id/", controller.MenuDelete)
 		meal.DELETE("/delete/meal_image/:id/", controller.MealImageDelete)
 	}
-	engine.Static("/static", "./app/static")
+	// engine.Static("/static", "./app/static")
 	time.Local = time.FixedZone("Asia/Tokyo", 9*60*60)
 	engine.Run(":3000")
 }

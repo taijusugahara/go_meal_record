@@ -12,6 +12,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/gin-gonic/gin"
 	"gorm.io/datatypes"
 )
@@ -242,12 +247,77 @@ func MenuDelete(c *gin.Context) {
 
 }
 
+// func MealImageCreate(c *gin.Context) {
+// 	var err error
+// 	validate := validate.Validate()
+// 	image := model.MealImage{}
+// 	//fileがある場合はjsonBindじゃなくてc.PostForm使っていけた。
+// 	//理由としてはheaderのcontent-typeをmultipart-form;にしてるからだと思う。いやデータ格納するのにFormData使ってるからかな
+// 	meal_type := c.PostForm("meal_type")
+// 	date_str := c.PostForm("date")
+// 	file, err := c.FormFile("file")
+// 	if err != nil {
+// 		log.Println(err)
+// 		c.String(http.StatusInternalServerError, "Server Error")
+// 		return
+// 	}
+// 	//Menuがあるか確認。なければ作成
+// 	meal, err := MealGetOrCreate(c, meal_type, date_str)
+
+// 	filename := file.Filename
+// 	filename_split_dot := strings.Split(filename, ".")
+// 	extention := filename_split_dot[len(filename_split_dot)-1]
+// 	valid_extentions := []string{"jpeg", "jpg", "JPEG", "png", "PNG"}
+// 	if common.Contains(valid_extentions, extention) {
+// 		image.File = filename
+// 		image.Meal = meal
+// 		image.MealID = meal.ID
+// 		err = validate.Struct(image)
+// 		if err != nil {
+// 			log.Println(err)
+// 			c.String(http.StatusInternalServerError, "Validation Error")
+// 			return
+// 		}
+// 		result := db.DB.Create(&image)
+// 		if result.Error != nil {
+// 			log.Println(result.Error)
+// 			c.String(http.StatusInternalServerError, "Server Error")
+// 			return
+// 		}
+// 		id := strconv.Itoa(image.ID)
+// 		err := os.Mkdir("app/static/meal/"+id, 0750)
+// 		if err != nil {
+// 			log.Println(err)
+// 			c.String(http.StatusInternalServerError, "Server Error")
+// 			return
+// 		}
+// 		path := "app/" + image.File
+// 		c.SaveUploadedFile(file, path)
+// 	} else {
+// 		c.String(http.StatusInternalServerError, "File extention not correct")
+// 		return
+// 	}
+
+// 	c.JSONP(http.StatusOK, gin.H{
+// 		"image": image,
+// 	})
+// }
+
 func MealImageCreate(c *gin.Context) {
 	var err error
 	validate := validate.Validate()
 	image := model.MealImage{}
+	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
+	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsRegion := os.Getenv("AWS_REGION")
+	is_production := os.Getenv("IS_PRODUCTION")
+	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
+	if is_production == "true" {
+		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
+	}
+
 	//fileがある場合はjsonBindじゃなくてc.PostForm使っていけた。
-	//理由としてはheaderのcontent-typeをmultipart-form;にしてるからだと思う。いやデータ格納するのにFormData使ってるからかな
+	//理由としてはデータ格納するのにreact側でFormData使ってるからだと思う
 	meal_type := c.PostForm("meal_type")
 	date_str := c.PostForm("date")
 	file, err := c.FormFile("file")
@@ -264,7 +334,7 @@ func MealImageCreate(c *gin.Context) {
 	extention := filename_split_dot[len(filename_split_dot)-1]
 	valid_extentions := []string{"jpeg", "jpg", "JPEG", "png", "PNG"}
 	if common.Contains(valid_extentions, extention) {
-		image.File = filename
+		// image.Filename = filename
 		image.Meal = meal
 		image.MealID = meal.ID
 		err = validate.Struct(image)
@@ -273,21 +343,44 @@ func MealImageCreate(c *gin.Context) {
 			c.String(http.StatusInternalServerError, "Validation Error")
 			return
 		}
+		//一旦pkを獲得するためにcreate
 		result := db.DB.Create(&image)
 		if result.Error != nil {
 			log.Println(result.Error)
 			c.String(http.StatusInternalServerError, "Server Error")
 			return
 		}
-		id := strconv.Itoa(image.ID)
-		err := os.Mkdir("app/static/meal/"+id, 0750)
+		image_id := strconv.Itoa(image.ID)
+		filename := "meal/" + image_id + "/" + filename
+		// sessionを作成します(aws 接続)
+		newSession := session.Must(session.NewSession(&aws.Config{
+			Region: aws.String(awsRegion),
+			Credentials: credentials.NewStaticCredentials(
+				awsAccessKey, awsSecretKey, "",
+			),
+		}))
+		upload_file, _ := file.Open()
+		defer upload_file.Close()
+
+		// Uploaderを作成し、ファイルをアップロード
+		uploader := s3manager.NewUploader(newSession)
+		_, err = uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String(awsS3Bucket),
+			Key:    aws.String(filename),
+			Body:   upload_file,
+		})
+
 		if err != nil {
-			log.Println(err)
-			c.String(http.StatusInternalServerError, "Server Error")
+			db.DB.Delete(&image)
+			log.Print(err)
+			c.String(http.StatusInternalServerError, "s3 upload fail")
 			return
 		}
-		path := "app/" + image.File
-		c.SaveUploadedFile(file, path)
+		// file object更新
+		image.Filename = filename
+		image.Fileurl = "https://" + awsS3Bucket + ".s3." + awsRegion + ".amazonaws.com/" + filename
+		db.DB.Save(&image)
+
 	} else {
 		c.String(http.StatusInternalServerError, "File extention not correct")
 		return
@@ -301,6 +394,15 @@ func MealImageCreate(c *gin.Context) {
 func MealImageDelete(c *gin.Context) {
 	id := c.Param("id") //dbにidを渡す際、stringでもintでもどっちもでもいいみたい。
 	meal_image := model.MealImage{}
+	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
+	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
+	awsRegion := os.Getenv("AWS_REGION")
+	is_production := os.Getenv("IS_PRODUCTION")
+	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
+	if is_production == "true" {
+		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
+	}
+
 	result := db.DB.Joins("Meal").First(&meal_image, id)
 	if result.Error != nil {
 		log.Println(result.Error)
@@ -319,6 +421,27 @@ func MealImageDelete(c *gin.Context) {
 		c.String(http.StatusBadRequest, "User not correct user")
 		return
 	}
+	filename := meal_image.Filename
+
+	newSession := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String(awsRegion),
+		Credentials: credentials.NewStaticCredentials(
+			awsAccessKey, awsSecretKey, "",
+		),
+	}))
+
+	svc := s3.New(newSession)
+	// s3はフォルダ内のファイル全て削除されたらフォルダも自動で削除されるらしい。なのでファイル削除だけでok
+	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(awsS3Bucket), Key: aws.String(filename),
+	})
+
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusInternalServerError, "Server Error")
+		return
+	}
+
 	result = db.DB.Delete(&meal_image)
 	if result.Error != nil {
 		log.Println(result.Error)
