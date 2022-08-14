@@ -1,5 +1,17 @@
 version: "3"
+
 services:
+  app:
+    container_name: go_meal_record_app
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    ports:
+      - "3000:3000"
+    tty: true
+    volumes:
+      - .:/go/src/go_meal_record
+
   postgres:
     container_name: go_meal_record_postgres
     image: postgres:alpine
@@ -8,16 +20,16 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - "./db-data:/var/lib/postgresql/data"
+      - ./db-data:/var/lib/postgresql/data
     ports :
       - "5432:5432"
-  app:
+
+  nginx:
+    container_name: go_meal_record_nginx
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: go_meal_record_app
+      dockerfile: ./nginx/Dockerfile
     ports:
-      - "3000:3000"
-    tty: true
-    volumes:
-      - .:/go/src/app
+      - "80:80"
+    depends_on:
+      - "app"
