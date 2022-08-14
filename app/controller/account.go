@@ -2,17 +2,15 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 
 	"go_meal_record/app/db"
 	"go_meal_record/app/model"
 	"go_meal_record/app/utils/token"
-
-	"net/http"
-	// "strconv"
+	"go_meal_record/app/utils/validate"
 
 	"log"
+	"net/http"
 )
 
 //log.Fatallnだとエラー起きるとサーバーが落ちる
@@ -23,7 +21,7 @@ import (
 
 func AccountRegister(c *gin.Context) {
 	var err error
-	validate := validator.New()
+	validate := validate.Validate()
 	user := model.User{}
 	err = c.BindJSON(&user)
 	if err != nil {
@@ -35,7 +33,7 @@ func AccountRegister(c *gin.Context) {
 	err = validate.Struct(user)
 	if err != nil {
 		log.Println(err)
-		c.String(http.StatusInternalServerError, "Server Error")
+		c.String(http.StatusInternalServerError, "Validation Error")
 		return
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -151,10 +149,5 @@ func ShowUser(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Not correct user")
 		return
 	}
-
-	log.Println(user)
-	log.Println(user.Name)
-	log.Println(user.Email)
-
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }

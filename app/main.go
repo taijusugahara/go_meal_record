@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile) //行情報出るように。
+	log.SetFlags(log.Lshortfile) //デフォルトだと何行目かの情報でないので行情報出るように。
 	engine := gin.Default()
 	cors_config := cors.DefaultConfig()
 	cors_config.AllowOrigins = []string{"http://localhost:3001"}
@@ -26,6 +26,9 @@ func main() {
 		"Authorization"}
 
 	engine.Use(cors.New(cors_config))
+
+	//csrf対策しようと思ったがjwt認証してたら対策になるみたいなので、csrftokenを使ってcsrf対策するのはやめた。
+
 	//ログイン必要なし
 	v1 := engine.Group("/v1")
 	{
@@ -35,6 +38,7 @@ func main() {
 			account.POST("/login", controller.Login)
 		}
 	}
+
 	//ログイン必要
 	v2 := engine.Group("/v2")
 	v2.Use(middleware.JwtAuthMiddleware())
@@ -57,7 +61,6 @@ func main() {
 		meal.DELETE("/delete/menu/:id/", controller.MenuDelete)
 		meal.DELETE("/delete/meal_image/:id/", controller.MealImageDelete)
 	}
-	// engine.Static("/static", "./app/static")
 	time.Local = time.FixedZone("Asia/Tokyo", 9*60*60)
 	engine.Run(":3000")
 }

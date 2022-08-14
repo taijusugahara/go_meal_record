@@ -31,5 +31,8 @@ func init() {
 	}
 
 	DB.AutoMigrate(&model.User{})
+	DB.AutoMigrate(&model.Meal{})
+	DB.AutoMigrate(&model.Menu{})
+	DB.AutoMigrate(&model.MealImage{})
 	// DbEngine.AutoMigrate(&model.Book{})
 }

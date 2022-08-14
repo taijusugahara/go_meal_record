@@ -1,8 +1,6 @@
 package token
 
 import (
-	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -59,18 +57,12 @@ func TokenValid(c *gin.Context) error {
 	secret_key := os.Getenv("JWT_SECRET_KEY")
 	claims := jwt.MapClaims{}
 	token_string := ExtractToken(c)
-	if token_string == "" {
-		log.Println("token is not exist")
-		c.String(http.StatusUnauthorized, "Unauthorized")
-	}
 	_, err := jwt.ParseWithClaims(token_string, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret_key), nil
 	})
 	if err != nil {
-		log.Println("nok")
 		return err
 	} else {
-		log.Println("ok")
 		return nil
 	}
 }
