@@ -14,7 +14,9 @@ services:
 
   postgres:
     container_name: go_meal_record_postgres
-    image: postgres:alpine
+    build:
+      context: .
+      dockerfile: ./postgres/Dockerfile
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
