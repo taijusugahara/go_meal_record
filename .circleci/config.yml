@@ -14,16 +14,15 @@ jobs:
     working_directory: ~/go-meal-record
     steps:
       - checkout
-      - go/mod-download-cached ./app
+      # - go/mod-download-cached
       - run:
           name: go mod init #go mod initしないとエラー
-          command: go mod init
+          command: go mod init ./app
       - run:
           name: go build
           command: go build ./app/main.go
 
     environment:
-      GOPATH: /
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
 
