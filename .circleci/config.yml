@@ -8,6 +8,10 @@ jobs:
     working_directory: ~/go-meal-record
     steps:
       - checkout
+      - run:
+        name: go build
+        command: go build main.go ./app
+
     environment:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
