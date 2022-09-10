@@ -23,6 +23,7 @@ jobs:
           command: go build ./app/main.go
 
     environment:
+      GOPATH: /
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
 
