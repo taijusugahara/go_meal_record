@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@2.1.0
+  aws-ecs: circleci/aws-ecs@3.1.0
 
 jobs:
   test:
@@ -23,8 +24,8 @@ jobs:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
 
-  deploy:
-    docker: #これ必要ないと思うけどないとエラーなので
+  deploy-to-ecr:
+    docker: #これ必要ないと思うけどないとdockerという項目ないとエラーなので
       - image: cimg/go:1.17
     working_directory: ~/go-meal-record
     steps:
@@ -43,12 +44,18 @@ jobs:
 
 workflows:
   version: 2
-  build_test_and_deploy:
+  test_and_deploy:
     jobs:
       - test
-      - deploy:
+      - deploy-to-ecr:
           requires:
             - test
           filters:
             branches:
               only: main
+      - aws-ecs/deploy-service-update:
+            requires:
+              - deploy-to-ecr
+            family: '${ECR_IMAGE_NAME}-service'
+            cluster: '${ECR_IMAGE_NAME}-cluster'
+            container-image-name-updates: 'container=${ECR_IMAGE_NAME}-service,tag=latest'
