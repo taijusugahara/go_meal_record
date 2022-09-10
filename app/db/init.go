@@ -16,9 +16,12 @@ var DB *gorm.DB
 var err error
 
 func init() {
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalln(err)
+	//circleciを利用する=githubを利用するということは.envは使えないので、開発環境だけ.env使って、本番環境(ecs)はタスク定義に環境変数を書く
+	if os.Getenv("GO_ENVIRONMENT") == "development" {
+		err = godotenv.Load(".env")
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 	postgres_host := "postgres"
 	if os.Getenv("GO_ENVIRONMENT") == "production" {
