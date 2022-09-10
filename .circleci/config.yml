@@ -16,12 +16,11 @@ jobs:
       - checkout
       # - go/mod-download-cached
       - run:
-          name: go mod init #go mod initしないとエラー
-          command: go mod init ./app
-      - run:
-          name: go build
-          command: go build ./app/main.go
-
+          working_directory: app
+          name: build #go mod initしないとエラー
+          command: |
+            go mod init
+            go build main.go
     environment:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
