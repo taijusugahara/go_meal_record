@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@2.1.0
+
 jobs:
   build: #test時もbuildと同じことするのでbuildがなぜ必要なのかわからない(共通処理も2回行われるので効果ないのでは？)
     docker:
@@ -25,13 +28,30 @@ jobs:
     steps:
       - checkout
       - run:
-          working_directory: app/test #appディレクトに移動
+          working_directory: app/test #app/testディレクトに移動
           name: go test
           command: go test -v
     environment:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
 
+  deploy:
+    docker: #これ必要ないと思うけどないとエラーなので
+      - image: cimg/go:1.17
+    working_directory: ~/go-meal-record
+    steps:
+        - checkout
+        - setup_remote_docker
+        - aws-cli/install
+        - aws-cli/setup
+        - run:
+            working_directory: app/ #appディレクトに移動
+            name: docker build and push to ecr
+            command: |
+              docker build -t go-meal-record-app-production  -f ./Dockerfile.production . --platform amd64
+              aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+              docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
 
 workflows:
   version: 2
@@ -41,3 +61,9 @@ workflows:
       - test:
           requires:
             - build
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
