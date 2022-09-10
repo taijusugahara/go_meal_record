@@ -53,9 +53,9 @@ workflows:
           filters:
             branches:
               only: main
-      - aws-ecs/deploy-service-update:
+      - aws-ecs/deploy-service-update: #これはworkflowsの中に書かないと動かなかった。
             requires:
               - deploy-to-ecr
-            family: '${ECR_IMAGE_NAME}-service'
-            cluster: '${ECR_IMAGE_NAME}-cluster'
-            container-image-name-updates: 'container=${ECR_IMAGE_NAME}-service,tag=latest'
+            family: '${TASK_NAME}'
+            cluster: '${CLUSTER_NAME}'
+            container-image-name-updates: 'container=${TASK_CONTAINER_NAME},tag=latest'
