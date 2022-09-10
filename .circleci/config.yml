@@ -12,20 +12,26 @@ jobs:
     working_directory: ~/go-meal-record
     steps:
       - checkout
-      - run:
-          working_directory: app #appディレクトに移動
-          name: go build
-          command: go build main.go
-    environment:
-      GO_ENVIRONMENT: development
-      CGO_ENABLED: 0
 
   test:
+    docker:
+      - image: cimg/go:1.17
+      - image: cimg/postgres:14.4
+        environment:
+            POSTGRES_USER: test_user
+            POSTGRES_PASSWORD: test_password
+            POSTGRES_DB: test_db
+    working_directory: ~/go-meal-record
     steps:
+      - checkout
       - run:
           working_directory: app/test #appディレクトに移動
           name: go test
           command: go test -v
+    environment:
+      GO_ENVIRONMENT: development
+      CGO_ENABLED: 0
+
 
 workflows:
   version: 2
