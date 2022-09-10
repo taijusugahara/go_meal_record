@@ -36,6 +36,8 @@ jobs:
       CGO_ENABLED: 0
 
   deploy:
+    docker: #これ必要ないと思うけどないとエラーなので
+      - image: cimg/go:1.17
     working_directory: ~/go-meal-record
     steps:
         - checkout
@@ -50,6 +52,7 @@ jobs:
               aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
               docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+
 workflows:
   version: 2
   build_test_and_deploy:
