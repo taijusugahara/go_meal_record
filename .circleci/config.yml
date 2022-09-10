@@ -43,13 +43,13 @@ jobs:
         - aws-cli/install
         - aws-cli/setup
         - run:
-          working_directory: app/ #appディレクトに移動
-          name: docker build and push to ecr
-          command: |
-            docker build -t go-meal-record-app-production  -f ./Dockerfile.production . --platform amd64
-            aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-            docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+            working_directory: app/ #appディレクトに移動
+            name: docker build and push to ecr
+            command: |
+              docker build -t go-meal-record-app-production  -f ./Dockerfile.production . --platform amd64
+              aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+              docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
 workflows:
   version: 2
   build_test_and_deploy:
