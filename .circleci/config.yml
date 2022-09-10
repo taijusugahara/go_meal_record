@@ -13,10 +13,10 @@ jobs:
           POSTGRES_DB: test_db
     working_directory: ~/go-meal-record
     steps:
+      working_directory: app #appディレクトに移動
       - checkout
       - go/mod-download-cached
       - run:
-          working_directory: app
           name: build
           command: go build main.go
     environment:
