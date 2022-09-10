@@ -19,7 +19,6 @@ jobs:
           working_directory: app
           name: build #go mod initしないとエラー
           command: |
-            go mod init
             go build main.go
     environment:
       GO_ENVIRONMENT: development
