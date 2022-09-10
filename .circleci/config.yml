@@ -6,7 +6,7 @@ build:
   working_directory: ~/go-meal-record
   steps:
     - checkout
-      path: ~/go-meal-record
+        path: ~/go-meal-record
   environment:
     GO_ENVIRONMENT: development
     CGO_ENABLED: 0
@@ -16,6 +16,6 @@ workflows:
   build_test_and_deploy:
     jobs:
       - build
-      - test:
-          requires:
-            - build
+      # - test:
+      #     requires:
+      #       - build
