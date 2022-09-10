@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   go: circleci/go@1.7.0
+
 jobs:
   build:
     docker:
@@ -13,12 +14,12 @@ jobs:
           POSTGRES_DB: test_db
     working_directory: ~/go-meal-record
     steps:
-      working_directory: app #appディレクトに移動
       - checkout
-      - go/mod-download-cached
       - run:
-          name: build
+          working_directory: app #appディレクトに移動
+          name: go build
           command: go build main.go
+      - go/mod-download-cached
     environment:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
