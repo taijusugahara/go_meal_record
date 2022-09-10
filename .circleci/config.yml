@@ -4,18 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@2.1.0
 
 jobs:
-  build: #test時もbuildと同じことするのでbuildがなぜ必要なのかわからない(共通処理も2回行われるので効果ないのでは？)
-    docker:
-      - image: cimg/go:1.17
-      - image: cimg/postgres:14.4
-        environment:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_db
-    working_directory: ~/go-meal-record
-    steps:
-      - checkout
-
   test:
     docker:
       - image: cimg/go:1.17
@@ -57,10 +45,7 @@ workflows:
   version: 2
   build_test_and_deploy:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - test
       - deploy:
           requires:
             - test
