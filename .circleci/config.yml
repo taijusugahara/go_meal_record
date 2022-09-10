@@ -1,25 +1,21 @@
 version: 2.1
 
-orbs:
-  go: circleci/go@1.7.0
 jobs:
   build:
     docker:
       - image: cimg/go:1.17
       - image: cimg/postgres:14.4
         environment:
-          POSTGRES_USER: test_user
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: test_db
     working_directory: ~/go-meal-record
     steps:
       - checkout
-      # - go/mod-download-cached
       - run:
-          working_directory: app
-          name: build #go mod initしないとエラー
-          command: |
-            go build main.go
+          working_directory: app #appディレクトリに移動
+          name: build
+          command: go build main.go
     environment:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
