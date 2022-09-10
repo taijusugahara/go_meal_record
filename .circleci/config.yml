@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@2.1.0
-  # aws-ecs: circleci/aws-ecs@3.1.0
 
 jobs:
   test:
@@ -24,7 +23,7 @@ jobs:
       GO_ENVIRONMENT: development
       CGO_ENABLED: 0
 
-  deploy-to-ecr:
+  deploy:
     docker: #これ必要ないと思うけどないとdockerという項目ないとエラーなので
       - image: cimg/go:1.17
     working_directory: ~/go-meal-record
@@ -35,7 +34,7 @@ jobs:
         - aws-cli/setup
         - run:
             working_directory: app/ #appディレクトに移動
-            name: docker build and push to ecr
+            name: docker build and push to ecr and service update
             command: |
               docker build -t go-meal-record-app-production  -f ./Dockerfile.production . --platform amd64
               aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
@@ -48,15 +47,9 @@ workflows:
   test_and_deploy:
     jobs:
       - test
-      - deploy-to-ecr:
+      - deploy:
           requires:
             - test
           filters:
             branches:
               only: main
-      # - aws-ecs/deploy-service-update: #これはworkflowsの中に書かないと動かなかった。
-      #       requires:
-      #         - deploy-to-ecr
-      #       family: '${TASK_NAME}-service'
-      #       cluster: '${CLUSTER_NAME}'
-      #       container-image-name-updates: 'container=${TASK_CONTAINER_NAME},tag=latest'
