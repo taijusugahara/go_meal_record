@@ -9,8 +9,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: go build
-        command: go build main.go ./app
+          name: go build
+          command: go build main.go ./app
 
     environment:
       GO_ENVIRONMENT: development
