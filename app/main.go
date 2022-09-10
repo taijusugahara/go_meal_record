@@ -33,7 +33,7 @@ func main() {
 	//aws alb target-groupのpathはアクセスできるものでないといけないため下のなんでもないpathを使う。そのほかのpathはpostだったりログイン必要だったりでunhealthyになるため。
 	engine.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Welcome to go-meal-record",
+			"message": "Welcome to go-meal-record ok!",
 		})
 	})
 
