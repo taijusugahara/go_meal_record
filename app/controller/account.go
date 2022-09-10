@@ -4,10 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
-	"go_meal_record/app/db"
-	"go_meal_record/app/model"
-	"go_meal_record/app/utils/token"
-	"go_meal_record/app/utils/validate"
+	"go-meal-record/app/db"
+	"go-meal-record/app/model"
+	"go-meal-record/app/utils/token"
+	"go-meal-record/app/utils/validate"
 
 	"log"
 	"net/http"

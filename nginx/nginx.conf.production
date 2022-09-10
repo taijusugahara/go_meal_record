@@ -1,0 +1,20 @@
+user nginx;
+worker_processes auto;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  server {
+    listen       80;
+    client_max_body_size 50M;
+    location / {
+      # AWS VPCのネットワーク範囲(CIDR)のアドレスに+2をプラスしたIP
+      resolver 10.0.0.2;
+      # AWS SERVICE_DISCOVERY_NAME.NAMESPACE
+      set $backend_servers app.go-meal-record-service-discovery;
+      proxy_pass http://$backend_servers:3000;
+    }
+  }
+}

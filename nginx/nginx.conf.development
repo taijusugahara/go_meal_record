@@ -1,0 +1,21 @@
+user nginx;
+worker_processes auto;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  server {
+    listen       80;
+    client_max_body_size 50M;
+    location / {
+      proxy_pass http://app:3000;
+    }
+  }
+}
+
+# proxy_passのappはdocker-composeのservice名
+# 80番portを3000に繋ぐようにしてる。
+# だからapiを利用する場合は3000番で直に使うこともできるけど、80番でnginxを介して使用することもできるという感じ。
+# そのためreactでは:3000じゃなくて:80になる。

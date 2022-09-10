@@ -4,9 +4,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"go_meal_record/app/controller"
-	_ "go_meal_record/app/db" //module名/ディレクトリ initだけの場合は_使用
-	"go_meal_record/app/middleware"
+	"go-meal-record/app/controller"
+	_ "go-meal-record/app/db" //module名/ディレクトリ initだけの場合は_使用
+	"go-meal-record/app/middleware"
 
 	"log"
 	"net/http"
@@ -29,6 +29,14 @@ func main() {
 
 	//csrf対策しようと思ったがjwt認証してたら対策になるみたいなので、csrftokenを使ってcsrf対策するのはやめた。
 
+	//下の何でもないpath(/)必要。
+	//aws alb target-groupのpathはアクセスできるものでないといけないため下のなんでもないpathを使う。そのほかのpathはpostだったりログイン必要だったりでunhealthyになるため。
+	engine.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to go-meal-record",
+		})
+	})
+
 	//ログイン必要なし
 	v1 := engine.Group("/v1")
 	{
@@ -43,11 +51,6 @@ func main() {
 	v2 := engine.Group("/v2")
 	v2.Use(middleware.JwtAuthMiddleware())
 	{
-		v2.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "hello world",
-			})
-		})
 		v2.POST("/get_token_by_refresh_token", controller.GetTokenByRefreshToken)
 		v2.GET("/user_info", controller.ShowUser)
 

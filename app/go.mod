@@ -1,4 +1,4 @@
-module go_meal_record/app
+module go-meal-record/app
 
 go 1.18
 
