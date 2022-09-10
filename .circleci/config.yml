@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  build: #test時もbuildと同じことするのでbuildがなぜ必要なのかわからない(共通処理も2回行われるので効果ないのでは？)
     docker:
       - image: cimg/go:1.17
       - image: cimg/postgres:14.4

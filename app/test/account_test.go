@@ -7,7 +7,7 @@ func add(a, b int) int {
 }
 
 func TestAdd(t *testing.T) {
-	if add(1, 2) != 4 {
+	if add(1, 2) != 3 {
 		t.Errorf("add() = %v, want %v", add(1, 2), 3)
 	}
 }
