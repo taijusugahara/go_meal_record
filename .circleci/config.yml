@@ -1,0 +1,21 @@
+version: 2.1
+  build:
+    docker:
+      - image: cimg/go:1.17
+      - image: cimg/postgres:14.4
+    working_directory: ~/go-meal-record
+    steps:
+      - checkout
+        path: ~/go-meal-record
+    environment:
+      GO_ENVIRONMENT: development
+      CGO_ENABLED: 0
+
+workflows:
+  version: 2
+  build_test_and_deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
