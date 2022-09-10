@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"go_meal_record/app/db"
-	"go_meal_record/app/model"
-	"go_meal_record/app/utils/common"
-	"go_meal_record/app/utils/validate"
+	"go-meal-record/app/db"
+	"go-meal-record/app/model"
+	"go-meal-record/app/utils/common"
+	"go-meal-record/app/utils/validate"
 	"log"
 	"net/http"
 	"os"
@@ -310,9 +310,9 @@ func MealImageCreate(c *gin.Context) {
 	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
 	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
 	awsRegion := os.Getenv("AWS_REGION")
-	is_production := os.Getenv("IS_PRODUCTION")
+	go_environment := os.Getenv("GO_ENVIRONMENT")
 	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
-	if is_production == "true" {
+	if go_environment == "production" {
 		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
 	}
 
@@ -397,9 +397,9 @@ func MealImageDelete(c *gin.Context) {
 	awsAccessKey := os.Getenv("AWS_ACCESS_KEY")
 	awsSecretKey := os.Getenv("AWS_SECRET_KEY")
 	awsRegion := os.Getenv("AWS_REGION")
-	is_production := os.Getenv("IS_PRODUCTION")
+	go_environment := os.Getenv("GO_ENVIRONMENT")
 	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
-	if is_production == "true" {
+	if go_environment == "production" {
 		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
 	}
 

@@ -3,7 +3,7 @@ package validate
 import (
 	"github.com/go-playground/validator/v10"
 
-	"go_meal_record/app/model"
+	"go-meal-record/app/model"
 )
 
 func Validate() *validator.Validate {

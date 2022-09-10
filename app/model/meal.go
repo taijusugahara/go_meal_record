@@ -9,7 +9,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 
-	"go_meal_record/app/utils/common"
+	"go-meal-record/app/utils/common"
 )
 
 type Meal struct {

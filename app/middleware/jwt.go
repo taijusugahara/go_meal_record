@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"go_meal_record/app/utils/token"
+	"go-meal-record/app/utils/token"
 )
 
 func JwtAuthMiddleware() gin.HandlerFunc {

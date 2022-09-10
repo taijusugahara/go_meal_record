@@ -1,0 +1,4 @@
+FROM nginx:alpine
+
+# nginx.confで環境変数は普通に使うの難しかったので開発と本番二つのconfを作ることにした。
+COPY ./nginx.conf.development /etc/nginx/nginx.conf
