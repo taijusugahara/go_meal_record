@@ -42,11 +42,11 @@ jobs:
               docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
         - aws-ecs/deploy-service-update: # orb built-in job
-          requires:
-            - aws-ecr/build-and-push-image
-          family: '${ECR_IMAGE_NAME}-service'
-          cluster: '${ECR_IMAGE_NAME}-cluster'
-          container-image-name-updates: 'container=${ECR_IMAGE_NAME}-service,tag=latest'
+            requires:
+              - aws-ecr/build-and-push-image
+            family: '${ECR_IMAGE_NAME}-service'
+            cluster: '${ECR_IMAGE_NAME}-cluster'
+            container-image-name-updates: 'container=${ECR_IMAGE_NAME}-service,tag=latest'
 
 workflows:
   version: 2
