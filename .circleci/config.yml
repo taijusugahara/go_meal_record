@@ -6,7 +6,6 @@ build:
   working_directory: ~/go-meal-record
   steps:
     - checkout
-        path: ~/go-meal-record
   environment:
     GO_ENVIRONMENT: development
     CGO_ENABLED: 0
