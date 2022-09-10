@@ -9,6 +9,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: go mod init #go mod initしないとエラー
+          command: go mod init
+      - run:
           name: go build
           command: go build main.go ./app
 
