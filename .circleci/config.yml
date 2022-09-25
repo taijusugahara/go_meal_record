@@ -20,7 +20,8 @@ jobs:
           name: go test
           command: go test -v
     environment:
-      GO_ENVIRONMENT: circleci
+      GO_ENVIRONMENT: test
+      IS_CIRCLECI_TEST: true
       CGO_ENABLED: 0
 
   deploy:

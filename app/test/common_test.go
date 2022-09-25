@@ -22,12 +22,12 @@ var engine *gin.Engine
 func TestMain(m *testing.M) { //テスト前と後の共通処理 m.Run()の前後で
 	start_test()
 	m.Run()
-	// aws_s3_file_all_delete()
+	aws_s3_file_all_delete()
 }
 
 func start_test() {
-	env := os.Getenv("GO_ENVIRONMENT")
-	if env != "circleci" { //circleciでは.env使わずcircleciの環境変数使う。
+	is_circleci_test := os.Getenv("IS_CIRCLECI_TEST")
+	if is_circleci_test != "true" { //circleciでは.env使わずcircleciの環境変数使う。
 		os.Setenv("GO_ENVIRONMENT", "test")
 		err := godotenv.Load("../.env")
 		if err != nil {
