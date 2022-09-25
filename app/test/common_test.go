@@ -26,11 +26,17 @@ func TestMain(m *testing.M) { //テスト前と後の共通処理 m.Run()の前�
 }
 
 func start_test() {
-	os.Setenv("GO_ENVIRONMENT", "test")
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalln(err)
+	env := os.Getenv("GO_ENVIRONMENT")
+	if env != "circleci" { //circleciでは.env使わずcircleciの環境変数使う。
+		os.Setenv("GO_ENVIRONMENT", "test")
+		err := godotenv.Load("../.env")
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Println("this is circleci test")
 	}
+
 	engine = router.Router()
 	log.SetFlags(log.Lshortfile) //デフォルトだと何行目かの情報でないので行情報出るように。
 	time.Local = time.FixedZone("Asia/Tokyo", 9*60*60)
