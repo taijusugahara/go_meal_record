@@ -23,8 +23,8 @@ jobs:
       GO_ENVIRONMENT: test
       IS_CIRCLECI_TEST: true
       CGO_ENABLED: 0
-      POSTGRES_USER: postgres
-      POSTGRES_DB: circle_testing
+      TEST_POSTGRES_USER: postgres
+      TEST_POSTGRES_DB: circle_testing
 
   deploy:
     docker: #これ必要ないと思うけどないとdockerという項目ないとエラーなので
