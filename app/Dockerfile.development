@@ -11,10 +11,3 @@ WORKDIR /go/src/go-meal-record/app
 ENV GO_ENVIRONMENT development
 #コンテナ使用時test失敗するので対処として下
 ENV CGO_ENABLED 0
-
-#cmd複数実行したい場合はsh使う
-#CMDはdocker start時に行われるが、CMDの動作終了してstartになる感じじゃなかった。
-#CMDの処理に時間かかる場合はstartなってからCMD実行中って感じか。
-#startになったからといって./mainまで行ってないので注意。
-#動かない場合はどこまで進んでるかはdocker compose logs appで確認。
-CMD ["./startup.sh"]
