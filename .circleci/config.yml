@@ -11,7 +11,7 @@ jobs:
         environment:
             POSTGRES_USER: postgres #違うuserでは動かなかった
             POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD}
-            POSTGRES_DB: ${TEST_POSTGRES_DB}
+            POSTGRES_DB: circle_testing #これじゃないと動かなかった
     working_directory: ~/go-meal-record
     steps:
       - checkout
@@ -23,6 +23,8 @@ jobs:
       GO_ENVIRONMENT: test
       IS_CIRCLECI_TEST: true
       CGO_ENABLED: 0
+      POSTGRES_USER: postgres
+      POSTGRES_DB: circle_testing
 
   deploy:
     docker: #これ必要ないと思うけどないとdockerという項目ないとエラーなので
