@@ -35,7 +35,7 @@ func TestRoutePath_Success(t *testing.T) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	assert.Equal(t, "Welcome to go-meal-record ok!!", resp.Message)
+	assert.Equal(t, "Welcome to go-meal-record ok!!!", resp.Message)
 }
 
 func TestAccountRegister_Success(t *testing.T) {
