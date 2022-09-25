@@ -33,8 +33,6 @@ func start_test() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-	} else {
-		log.Println("this is circleci test")
 	}
 
 	engine = router.Router()

@@ -9,9 +9,9 @@ jobs:
       - image: cimg/go:1.17
       - image: cimg/postgres:14.4
         environment:
-            POSTGRES_USER: postgres
+            POSTGRES_USER: postgres #違うuserでは動かなかった
             POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD}
-            POSTGRES_DB: circle_testing #これじゃないとエラー出る
+            POSTGRES_DB: ${TEST_POSTGRES_DB}
     working_directory: ~/go-meal-record
     steps:
       - checkout
@@ -38,9 +38,9 @@ jobs:
             name: docker build and push to ecr and service update
             command: |
               docker build -t go-meal-record-app-production  -f ./Dockerfile.production . --platform amd64
-              aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-              docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
-              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+              aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+              docker tag ${PRODUCTION_IMAGE_NAME}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
+              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_IMAGE_NAME}:latest
               aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${TASK_NAME}
 
 workflows:
