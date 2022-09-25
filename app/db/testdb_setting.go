@@ -14,7 +14,7 @@ import (
 func SettingTestDb() {
 	postgres_host := "test_postgres"
 	is_circleci_test := os.Getenv("IS_CIRCLECI_TEST")
-	if is_circleci_test != "true" {
+	if is_circleci_test == "true" {
 		postgres_host = "localhost" //circleciのimageの場合localhostになるらしい。
 	}
 	postgres_user := os.Getenv("TEST_POSTGRES_USER")
