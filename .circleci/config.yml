@@ -9,7 +9,7 @@ jobs:
       - image: cimg/go:1.17
       - image: cimg/postgres:14.4
         environment:
-            POSTGRES_USER: ${TEST_POSTGRES_USER}
+            POSTGRES_USER: postgres
             POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD}
             POSTGRES_DB: circle_testing #これじゃないとエラー出る
     working_directory: ~/go-meal-record
