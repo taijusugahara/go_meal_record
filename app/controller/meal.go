@@ -22,6 +22,14 @@ import (
 )
 
 func MealIndexByDay(c *gin.Context) {
+	user, err := GetCurrentUser(c)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusBadRequest, "Not correct user")
+		return
+	}
+	user_id := user.ID
+
 	date_str := c.Param("date")
 	//2006-01-.....これじゃないといけないみたい
 	date, _ := time.ParseInLocation("2006-01-02T15:04:05Z", date_str, time.Local)
@@ -33,7 +41,7 @@ func MealIndexByDay(c *gin.Context) {
 		"morning": model.NewMeal(), "lunch": model.NewMeal(), "dinner": model.NewMeal(), "other": model.NewMeal(),
 	} //注意 : mapは強制的にkey abc順になる、morningから開始したいがslice rangeで順番変えても無理だった。今回の場合はdinnerが先頭に来る。morningからにしたかったらjs側でsortするか
 
-	result := db.DB.Model(model.Meal{}).Where("date = ?", date_start).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
+	result := db.DB.Model(model.Meal{}).Where("date = ? AND user_id = ?", date_start, user_id).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
@@ -50,6 +58,14 @@ func MealIndexByDay(c *gin.Context) {
 }
 
 func MealIndexByWeek(c *gin.Context) {
+	user, err := GetCurrentUser(c)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusBadRequest, "Not correct user")
+		return
+	}
+	user_id := user.ID
+
 	meals := []model.Meal{}
 	date_str := c.Param("date")
 	date, _ := time.ParseInLocation("2006-01-02T15:04:05Z", date_str, time.Local)
@@ -60,7 +76,7 @@ func MealIndexByWeek(c *gin.Context) {
 	end_week_date := date_start.AddDate(0, 0, 6-weekday_int)
 	formatted_first_week_date := first_week_date.Format("2006-01-02T15:04:05Z")
 	formatted_end_week_date := end_week_date.Format("2006-01-02T15:04:05Z")
-	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_week_date, end_week_date).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
+	result := db.DB.Where("meals.date BETWEEN ? AND ? AND user_id= ?", first_week_date, end_week_date, user_id).Preload("Menus").Preload("MealImages").Joins("User").Order("date").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
@@ -91,13 +107,21 @@ func MealIndexByWeek(c *gin.Context) {
 }
 
 func MealIndexByMonth(c *gin.Context) {
+	user, err := GetCurrentUser(c)
+	if err != nil {
+		log.Println(err)
+		c.String(http.StatusBadRequest, "Not correct user")
+		return
+	}
+	user_id := user.ID
+
 	meals := []model.Meal{}
 	date_str := c.Param("date")
 	date, _ := time.ParseInLocation("2006-01-02T15:04:05Z", date_str, time.Local)
 	first_month_date := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, time.Local)
 	end_month_date := first_month_date.AddDate(0, 1, -1)
 	formatted_first_month_date := first_month_date.Format("2006-01-02T15:04:05Z")
-	result := db.DB.Where("meals.date BETWEEN ? AND ?", first_month_date, end_month_date).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
+	result := db.DB.Where("meals.date BETWEEN ? AND ? AND user_id= ?", first_month_date, end_month_date, user_id).Preload("Menus").Preload("MealImages").Joins("User").Order("id").Find(&meals)
 	if result.Error != nil {
 		log.Println(result.Error)
 		c.String(http.StatusInternalServerError, "Server Error")
@@ -247,62 +271,6 @@ func MenuDelete(c *gin.Context) {
 
 }
 
-// func MealImageCreate(c *gin.Context) {
-// 	var err error
-// 	validate := validate.Validate()
-// 	image := model.MealImage{}
-// 	//fileがある場合はjsonBindじゃなくてc.PostForm使っていけた。
-// 	//理由としてはheaderのcontent-typeをmultipart-form;にしてるからだと思う。いやデータ格納するのにFormData使ってるからかな
-// 	meal_type := c.PostForm("meal_type")
-// 	date_str := c.PostForm("date")
-// 	file, err := c.FormFile("file")
-// 	if err != nil {
-// 		log.Println(err)
-// 		c.String(http.StatusInternalServerError, "Server Error")
-// 		return
-// 	}
-// 	//Menuがあるか確認。なければ作成
-// 	meal, err := MealGetOrCreate(c, meal_type, date_str)
-
-// 	filename := file.Filename
-// 	filename_split_dot := strings.Split(filename, ".")
-// 	extention := filename_split_dot[len(filename_split_dot)-1]
-// 	valid_extentions := []string{"jpeg", "jpg", "JPEG", "png", "PNG"}
-// 	if common.Contains(valid_extentions, extention) {
-// 		image.File = filename
-// 		image.Meal = meal
-// 		image.MealID = meal.ID
-// 		err = validate.Struct(image)
-// 		if err != nil {
-// 			log.Println(err)
-// 			c.String(http.StatusInternalServerError, "Validation Error")
-// 			return
-// 		}
-// 		result := db.DB.Create(&image)
-// 		if result.Error != nil {
-// 			log.Println(result.Error)
-// 			c.String(http.StatusInternalServerError, "Server Error")
-// 			return
-// 		}
-// 		id := strconv.Itoa(image.ID)
-// 		err := os.Mkdir("app/static/meal/"+id, 0750)
-// 		if err != nil {
-// 			log.Println(err)
-// 			c.String(http.StatusInternalServerError, "Server Error")
-// 			return
-// 		}
-// 		path := "app/" + image.File
-// 		c.SaveUploadedFile(file, path)
-// 	} else {
-// 		c.String(http.StatusInternalServerError, "File extention not correct")
-// 		return
-// 	}
-
-// 	c.JSONP(http.StatusOK, gin.H{
-// 		"image": image,
-// 	})
-// }
-
 func MealImageCreate(c *gin.Context) {
 	var err error
 	validate := validate.Validate()
@@ -314,8 +282,9 @@ func MealImageCreate(c *gin.Context) {
 	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
 	if go_environment == "production" {
 		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
+	} else if go_environment == "test" {
+		awsS3Bucket = os.Getenv("AWS_S3_TEST_BUCKET")
 	}
-
 	//fileがある場合はjsonBindじゃなくてc.PostForm使っていけた。
 	//理由としてはデータ格納するのにreact側でFormData使ってるからだと思う
 	meal_type := c.PostForm("meal_type")
@@ -401,6 +370,8 @@ func MealImageDelete(c *gin.Context) {
 	awsS3Bucket := os.Getenv("AWS_S3_LOCAL_BUCKET")
 	if go_environment == "production" {
 		awsS3Bucket = os.Getenv("AWS_S3_PRODUCTION_BUCKET")
+	} else if go_environment == "test" {
+		awsS3Bucket = os.Getenv("AWS_S3_TEST_BUCKET")
 	}
 
 	result := db.DB.Joins("Meal").First(&meal_image, id)
@@ -435,6 +406,10 @@ func MealImageDelete(c *gin.Context) {
 	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(awsS3Bucket), Key: aws.String(filename),
 	})
+	err = svc.WaitUntilObjectNotExists(&s3.HeadObjectInput{
+		Bucket: aws.String(awsS3Bucket),
+		Key:    aws.String(filename),
+	}) // errorが帰ってこなければ成功
 
 	if err != nil {
 		log.Println(err)

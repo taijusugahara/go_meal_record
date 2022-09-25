@@ -49,7 +49,7 @@ func AccountRegister(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
-
+	log.Println(user.ID)
 	//ログインさせる
 	token, err := token.GenerateToken(user.ID)
 
@@ -92,7 +92,7 @@ func Login(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Server Error")
 		return
 	}
-
+	log.Println(my_user.ID)
 	token, err := token.GenerateToken(my_user.ID)
 
 	if err != nil {
