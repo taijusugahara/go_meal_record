@@ -12,7 +12,7 @@ import (
 func Router() *gin.Engine {
 	engine := gin.Default()
 	cors_config := cors.DefaultConfig()
-	cors_config.AllowOrigins = []string{"http://localhost:3001"}
+	cors_config.AllowOrigins = []string{"http://localhost:3001", "https://meal-record.taiju-aws.com"}
 	cors_config.AllowHeaders = []string{"Access-Control-Allow-Credentials",
 		"Access-Control-Allow-Headers",
 		"Content-Type",
