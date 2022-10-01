@@ -1,7 +1,7 @@
 # Meal Record
 ## 構成
 <p><strong>React</strong> + <strong>Go</strong> + <strong>AWS</strong></p>
-<p>(githubはGoの内容となります。Reactは<a href="https://github.com/taijusugahara/react_meal_record">こちら</a>になります。)</p>
+<p>(このgithubはGoの内容となります。Reactは<a href="https://github.com/taijusugahara/react_meal_record">こちら</a>になります。)</p>
 
 ## デプロイ
 <li><strong>フロントエンド</strong>: AWS Amplifyにデプロイ</li>
