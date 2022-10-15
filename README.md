@@ -3,9 +3,12 @@
 <p><strong>React</strong> + <strong>Go</strong> + <strong>AWS</strong></p>
 <p>(このgithubはGoの内容となります。Reactは<a href="https://github.com/taijusugahara/react_meal_record">こちら</a>になります。)</p>
 
+## 概要図
+<img src="./meal_record_outline.jpg">
+
 ## デプロイ
 <li><strong>フロントエンド</strong>: AWS Amplifyにデプロイ</li>
-<li><strong>バックエンド</strong>:  go,nginxをAWS ECSに。postgresをAWS RDSを使用してデプロイ</li>
+<li><strong>バックエンド</strong>:  go,nginxをAWS ECSに。postgresをAWS RDSを使用</li>
 
 ## 使用技術
 <p><strong>フロントエンド</strong></p>
